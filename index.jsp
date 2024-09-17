@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
-            height: 100%;
+            height: 90%;
             margin: 0;
             background: #0d0d0d;
             color: #e0e0e0;
@@ -16,7 +16,7 @@
             overflow-x: hidden;
         }
         .container {
-            min-height: calc(100vh - 80px); /* Ajusta la altura mínima para que el footer esté en la parte inferior */
+            min-height: calc(100vh - 60px); /* Ajusta la altura mínima para que el footer esté en la parte inferior */
         }
         .jumbotron {
             background: linear-gradient(to right, #292929, #404040);

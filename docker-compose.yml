@@ -1,0 +1,15 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura
+      - DB_USER=casasegura_user
+      - DB_PASSWORD=fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG
+    networks:
+      - webnet
+
+networks:
+  webnet:
