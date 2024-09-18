@@ -4,42 +4,41 @@
     String errorMessage = "";
     String successMessage = "";
 
-if ("POST".equalsIgnoreCase(request.getMethod())) {
-    String action = request.getParameter("action");
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String action = request.getParameter("action");
 
-    if ("login".equals(action)) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        if ("login".equals(action)) {
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
 
-        try {
-            // Conexión a la base de datos alojada en Render
-            String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
-            String dbUser = "casasegura_user";
-            String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+            try {
+                // Conexión a la base de datos alojada en Render
+                String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+                String dbUser = "casasegura_user";
+                String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
 
-            Connection con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                Connection con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
 
-            String sql = "SELECT * FROM administradores WHERE username=? AND password=?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ResultSet rs = ps.executeQuery();
+                String sql = "SELECT * FROM administradores WHERE username=? AND password=?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1, username);
+                ps.setString(2, password);
+                ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                session.setAttribute("admin", username);
-                response.sendRedirect("DashboardAdmin.jsp");
-            } else {
-                errorMessage = "Credenciales incorrectas.";
+                if (rs.next()) {
+                    session.setAttribute("admin", username);
+                    response.sendRedirect("DashboardAdmin.jsp");
+                    return; // Detener la ejecución del resto del código
+                } else {
+                    errorMessage = "Credenciales incorrectas.";
+                }
+                con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                errorMessage = "Error en el sistema. Por favor, intente más tarde.";
             }
-            con.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            errorMessage = "Error en el sistema. Por favor, intente más tarde.";
         }
     }
-}
-
-    
 %>
 
 <!DOCTYPE html>
@@ -97,12 +96,16 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
             <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
         </form>
 
-        <!-- Mostrar mensajes de error o éxito -->
-        <c:if test="${not empty errorMessage}">
+        <!-- Mostrar mensajes de error o éxito utilizando scriptlets en lugar de JSTL -->
+        <% if (!errorMessage.isEmpty()) { %>
             <div class="alert alert-danger" role="alert">
-                <c:out value="${errorMessage}" />
+                <%= errorMessage %>
             </div>
-        </c:if>
+        <% } else if (!successMessage.isEmpty()) { %>
+            <div class="alert alert-success" role="alert">
+                <%= successMessage %>
+            </div>
+        <% } %>
     </div>
 </body>
 </html>

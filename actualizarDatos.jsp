@@ -68,97 +68,91 @@
             String email = "";
             String phone = "";
             String address = "";
-            Date birthdate = null;
+            String birthdate = "";
 
             if (cedula != null && !cedula.isEmpty()) {
-                Connection con = null;
-                PreparedStatement ps = null;
-                ResultSet rs = null;
+                try (Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
+                     PreparedStatement ps = con.prepareStatement("SELECT * FROM clientes WHERE cedula = ?")) {
 
-                try {
-                    con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
-                    String sql = "SELECT * FROM clientes WHERE cedula = ?";
-                    ps = con.prepareStatement(sql);
                     ps.setString(1, cedula);
-                    rs = ps.executeQuery();
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            nombre = rs.getString("nombre");
+                            email = rs.getString("email");
+                            phone = rs.getString("phone");
+                            address = rs.getString("address");
+                            birthdate = rs.getDate("birthdate").toString();
 
-                    if (rs.next()) {
-                        nombre = rs.getString("nombre");
-                        email = rs.getString("email");
-                        phone = rs.getString("phone");
-                        address = rs.getString("address");
-                        birthdate = rs.getDate("birthdate");
+                            // Actualización de datos
+                            if ("POST".equalsIgnoreCase(request.getMethod())) {
+                                nombre = request.getParameter("nombre");
+                                email = request.getParameter("email");
+                                phone = request.getParameter("phone");
+                                address = request.getParameter("address");
+                                birthdate = request.getParameter("birthdate");
 
-                        // Manejando los datos actualizados
-                        if ("POST".equalsIgnoreCase(request.getMethod())) {
-                            nombre = request.getParameter("nombre");
-                            email = request.getParameter("email");
-                            phone = request.getParameter("phone");
-                            address = request.getParameter("address");
-                            birthdate = Date.valueOf(request.getParameter("birthdate"));
+                                String updateSql = "UPDATE clientes SET nombre = ?, email = ?, phone = ?, address = ?, birthdate = ? WHERE cedula = ?";
+                                try (PreparedStatement updatePs = con.prepareStatement(updateSql)) {
+                                    updatePs.setString(1, nombre);
+                                    updatePs.setString(2, email);
+                                    updatePs.setString(3, phone);
+                                    updatePs.setString(4, address);
+                                    updatePs.setDate(5, Date.valueOf(birthdate));
+                                    updatePs.setString(6, cedula);
 
-                            String updateSql = "UPDATE clientes SET nombre = ?, email = ?, phone = ?, address = ?, birthdate = ? WHERE cedula = ?";
-                            ps = con.prepareStatement(updateSql);
-                            ps.setString(1, nombre);
-                            ps.setString(2, email);
-                            ps.setString(3, phone);
-                            ps.setString(4, address);
-                            ps.setDate(5, birthdate);
-                            ps.setString(6, cedula);
-
-                            int result = ps.executeUpdate();
-                            if (result > 0) {
-                                mensaje = "Datos actualizados exitosamente.";
-                            } else {
-                                mensaje = "No se pudo actualizar los datos.";
+                                    int result = updatePs.executeUpdate();
+                                    mensaje = result > 0 ? "Datos actualizados exitosamente." : "No se pudo actualizar los datos.";
+                                }
                             }
+                        } else {
+                            mensaje = "Cliente no encontrado.";
                         }
-                    } else {
-                        mensaje = "Cliente no encontrado.";
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     mensaje = "Error en el sistema. Por favor, intente más tarde.";
-                } finally {
-                    if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-                    if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-                    if (con != null) try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
                 }
             }
         %>
+        
+        <!-- Formulario de búsqueda de cliente -->
         <form action="actualizarDatos.jsp" method="get">
             <div class="form-group">
                 <label for="cedula">Cédula:</label>
-                <input type="text" id="cedula" name="cedula" required />
+                <input type="text" id="cedula" name="cedula" required value="<%= cedula != null ? cedula : "" %>" />
             </div>
             <input type="submit" value="Buscar Cliente" />
         </form>
+
+        <!-- Mostrar formulario de actualización solo si el cliente fue encontrado -->
         <% if (cedula != null && !cedula.isEmpty() && !mensaje.equals("Cliente no encontrado")) { %>
             <form action="actualizarDatos.jsp" method="post">
                 <input type="hidden" name="cedula" value="<%= cedula %>" />
                 <div class="form-group">
                     <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" value="<%= nombre != null ? nombre : "" %>" />
+                    <input type="text" id="nombre" name="nombre" value="<%= nombre %>" required />
                 </div>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
-                    <input type="email" id="email" name="email" value="<%= email != null ? email : "" %>" />
+                    <input type="email" id="email" name="email" value="<%= email %>" required />
                 </div>
                 <div class="form-group">
                     <label for="phone">Teléfono:</label>
-                    <input type="tel" id="phone" name="phone" value="<%= phone != null ? phone : "" %>" />
+                    <input type="tel" id="phone" name="phone" value="<%= phone %>" required />
                 </div>
                 <div class="form-group">
                     <label for="address">Dirección:</label>
-                    <input type="text" id="address" name="address" value="<%= address != null ? address : "" %>" />
+                    <input type="text" id="address" name="address" value="<%= address %>" required />
                 </div>
                 <div class="form-group">
                     <label for="birthdate">Fecha de Nacimiento:</label>
-                    <input type="date" id="birthdate" name="birthdate" value="<%= birthdate != null ? birthdate.toLocalDate() : "" %>" />
+                    <input type="date" id="birthdate" name="birthdate" value="<%= birthdate %>" required />
                 </div>
                 <input type="submit" value="Actualizar" />
             </form>
         <% } %>
+
+        <!-- Mostrar mensaje de estado -->
         <% if (!mensaje.isEmpty()) { %>
             <div class="alert alert-info mt-3">
                 <%= mensaje %>

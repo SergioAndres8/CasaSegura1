@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
 <%@ page import="java.sql.*, java.math.BigDecimal" %>
 <!DOCTYPE html>
 <html>
@@ -77,6 +76,7 @@
         }
         .alert {
             margin-top: 1rem;
+            color: #00bfff;
         }
     </style>
 </head>
@@ -107,11 +107,16 @@
             PreparedStatement pstmt = null;
             ResultSet rs = null;
             
+            // Conexión a la base de datos de Render
+            String url = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+            String user = "casasegura_user";
+            String passwordDB = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+            
             if ("verTodos".equals(action)) {
                 try {
                     // Establecer conexión con PostgreSQL
                     Class.forName("org.postgresql.Driver");
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
+                    conn = DriverManager.getConnection(url, user, passwordDB);
                     
                     // Preparar y ejecutar consulta para todos los inmuebles
                     String sql = "SELECT id, descripcion, tipo, precio, ubicacion FROM inmuebles";
@@ -164,7 +169,7 @@
                 try {
                     // Establecer conexión con PostgreSQL
                     Class.forName("org.postgresql.Driver");
-                    conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
+                    conn = DriverManager.getConnection(url, user, passwordDB);
                     
                     // Preparar y ejecutar consulta para un inmueble específico
                     String sql = "SELECT id, descripcion, tipo, precio, ubicacion FROM inmuebles WHERE id = ?";
@@ -219,11 +224,13 @@
             }
         %>
 
-        <c:if test="${not empty mensaje}">
+        <!-- Mostrar el mensaje si existe -->
+        <% if (!mensaje.isEmpty()) { %>
             <div class="alert alert-info">
-                <c:out value="${mensaje}" />
+                <%= mensaje %>
             </div>
-        </c:if>
+        <% } %>
+
     </div>
 </body>
 </html>

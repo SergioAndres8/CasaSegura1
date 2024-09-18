@@ -60,6 +60,12 @@
         <h1 class="text-center">Crear Cliente</h1>
         <%
             String mensaje = "";
+            
+            // Configuración de la conexión a PostgreSQL en Render
+            String url = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+            String user = "casasegura_user";
+            String passwordDB = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+            
             if ("POST".equalsIgnoreCase(request.getMethod())) {
                 String cedula = request.getParameter("cedula");
                 String nombre = request.getParameter("name");
@@ -68,8 +74,8 @@
                 String address = request.getParameter("address");
                 String birthdate = request.getParameter("birthdate");
                 String password = request.getParameter("password");
-                
-                // Verificar si birthdate no es nulo ni vacío
+
+                // Validación de la fecha de nacimiento
                 Date birthDateValue = null;
                 if (birthdate != null && !birthdate.isEmpty()) {
                     try {
@@ -78,9 +84,10 @@
                         mensaje = "Fecha de nacimiento no válida.";
                     }
                 }
-                
+
                 try {
-                    Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
+                    // Conexión a la base de datos de Render
+                    Connection con = DriverManager.getConnection(url, user, passwordDB);
                     String sql = "INSERT INTO clientes (cedula, nombre, email, phone, address, birthdate, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement ps = con.prepareStatement(sql);
                     ps.setString(1, cedula);
@@ -88,9 +95,9 @@
                     ps.setString(3, email);
                     ps.setString(4, phone);
                     ps.setString(5, address);
-                    ps.setDate(6, birthDateValue); // Usa el objeto Date
-                    ps.setString(7, password); // Aquí puedes usar un hash en lugar de un texto plano
-                    
+                    ps.setDate(6, birthDateValue);
+                    ps.setString(7, password); // Es recomendable encriptar las contraseñas
+
                     int result = ps.executeUpdate();
                     if (result > 0) {
                         mensaje = "Cliente creado exitosamente.";
@@ -135,11 +142,16 @@
             </div>
             <input type="submit" value="Crear Cliente" />
         </form>
-        <c:if test="${not empty mensaje}">
+        <%
+            // Mostrar el mensaje si existe
+            if (!mensaje.isEmpty()) {
+        %>
             <div class="alert alert-info mt-3">
-                <c:out value="${mensaje}" />
+                <%= mensaje %>
             </div>
-        </c:if>
+        <%
+            }
+        %>
     </div>
 </body>
 </html>

@@ -43,46 +43,34 @@
     <div class="container">
         <h2 class="text-center">Login Cliente</h2>
         <%
-    String errorMessage = "";
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        String errorMessage = "";
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
 
-        Connection con = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            // Conexión a la base de datos alojada en Render
-            String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
-            String dbUser = "casasegura_user";
-            String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
-
-            con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-            String sql = "SELECT * FROM clientes WHERE cedula=? AND password=?";
-            ps = con.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            rs = ps.executeQuery();
-
-            HttpSession userSession = request.getSession();
-
-            if (rs.next()) {
-                userSession.setAttribute("cliente", username);
-                response.sendRedirect("DashboardCliente.jsp");
-            } else {
-                errorMessage = "Credenciales incorrectas.";
+            // Uso de try-with-resources para garantizar el cierre de recursos
+            try (Connection con = DriverManager.getConnection("jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura", 
+                                                             "casasegura_user", "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG");
+                 PreparedStatement ps = con.prepareStatement("SELECT * FROM clientes WHERE cedula=? AND password=?")) {
+                 
+                ps.setString(1, username);
+                ps.setString(2, password);
+                try (ResultSet rs = ps.executeQuery()) {
+                    HttpSession userSession = request.getSession();
+                    if (rs.next()) {
+                        userSession.setAttribute("cliente", username);
+                        response.sendRedirect("DashboardCliente.jsp");
+                        return; // Detener la ejecución del resto del código
+                    } else {
+                        errorMessage = "Credenciales incorrectas.";
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                errorMessage = "Error en el sistema. Por favor, intente más tarde.";
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            errorMessage = "Error en el sistema. Por favor, intente más tarde.";
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception e) { e.printStackTrace(); }
-            try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
-            try { if (con != null) con.close(); } catch (Exception e) { e.printStackTrace(); }
         }
-    }
-%>
+        %>
 
         <form method="post">
             <div class="form-group">

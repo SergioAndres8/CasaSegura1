@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
-<%@ page import="java.math.BigDecimal" %> <!-- Importar BigDecimal aquí -->
+<%@ page import="java.math.BigDecimal" %> <!-- Importar BigDecimal -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -61,6 +61,12 @@
         <h1 class="text-center">Crear Inmueble</h1>
         <%
             String mensaje = "";
+
+            // Conexión a la base de datos en Render
+            String url = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+            String user = "casasegura_user";
+            String passwordDB = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+
             if ("POST".equalsIgnoreCase(request.getMethod())) {
                 String descripcion = request.getParameter("descripcion");
                 String tipo = request.getParameter("tipo");
@@ -68,12 +74,13 @@
                 String ubicacion = request.getParameter("ubicacion");
 
                 try {
-                    Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
+                    // Conectar a la base de datos en Render
+                    Connection con = DriverManager.getConnection(url, user, passwordDB);
                     String sql = "INSERT INTO inmuebles (descripcion, tipo, precio, ubicacion) VALUES (?, ?, ?, ?)";
                     PreparedStatement ps = con.prepareStatement(sql);
                     ps.setString(1, descripcion);
                     ps.setString(2, tipo);
-                    ps.setBigDecimal(3, new BigDecimal(precio));
+                    ps.setBigDecimal(3, new BigDecimal(precio)); // Convertir precio a BigDecimal
                     ps.setString(4, ubicacion);
 
                     int result = ps.executeUpdate();
@@ -108,11 +115,15 @@
             </div>
             <input type="submit" value="Crear Inmueble" />
         </form>
-        <c:if test="${not empty mensaje}">
+        <%
+            if (!mensaje.isEmpty()) {
+        %>
             <div class="alert alert-info mt-3">
-                <c:out value="${mensaje}" />
+                <%= mensaje %>
             </div>
-        </c:if>
+        <%
+            }
+        %>
     </div>
 </body>
 </html>

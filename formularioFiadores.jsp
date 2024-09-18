@@ -77,100 +77,105 @@
         
         <!-- Sección de Registro de Fiadores -->
         <h2>Registrar Nuevo Fiador</h2>
-        <form action="formularioFiadores.jsp" method="post">
-            <div class="form-group">
-                <label for="cedula">Cédula del Fiador:</label>
-                <input type="text" id="cedula" name="cedula" required />
-            </div>
-            <div class="form-group">
-                <label for="fiadorName">Nombre del Fiador:</label>
-                <input type="text" id="fiadorName" name="fiadorName" required />
-            </div>
-            <div class="form-group">
-                <label for="fiadorEmail">Correo Electrónico del Fiador:</label>
-                <input type="email" id="fiadorEmail" name="fiadorEmail" required />
-            </div>
-            <input type="submit" value="Registrar Fiador" />
-        </form>
-
-        <!-- Mensaje de Estado -->
-        <%
-            String mensaje = "";
-            Connection con = null;
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            // Registro de Fiador
-            if ("POST".equalsIgnoreCase(request.getMethod())) {
-                String cedula = request.getParameter("cedula");
-                String nombre = request.getParameter("fiadorName");
-                String email = request.getParameter("fiadorEmail");
-
-                try {
-                    con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
-                    String insertSql = "INSERT INTO fiadores (cedula, nombre, email) VALUES (?, ?, ?)";
-                    ps = con.prepareStatement(insertSql);
-                    ps.setString(1, cedula);
-                    ps.setString(2, nombre);
-                    ps.setString(3, email);
-
-                    int result = ps.executeUpdate();
-                    if (result > 0) {
-                        mensaje = "Fiador registrado exitosamente.";
-                    } else {
-                        mensaje = "No se pudo registrar el fiador.";
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    mensaje = "Error en el sistema. Por favor, intente más tarde.";
-                } finally {
-                    if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-                    if (con != null) try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
-                }
-            }
-        %>
-        <% if (!mensaje.isEmpty()) { %>
-            <div class="alert alert-info mt-3">
-                <%= mensaje %>
-            </div>
-        <% } %>
-
-        <!-- Sección de Listado de Fiadores -->
-        <h2>Lista de Fiadores</h2>
-        <%
-            try {
-                con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
-                String selectSql = "SELECT * FROM fiadores";
-                ps = con.prepareStatement(selectSql);
-                rs = ps.executeQuery();
-        %>
-        <table>
-            <thead>
-                <tr>
-                    <th>Cédula</th>
-                    <th>Nombre</th>
-                    <th>Correo Electrónico</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% while (rs.next()) { %>
-                    <tr>
-                        <td><%= rs.getString("cedula") %></td>
-                        <td><%= rs.getString("nombre") %></td>
-                        <td><%= rs.getString("email") %></td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-        <% 
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-                if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
-                if (con != null) try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-        %>
+<form action="formularioFiadores.jsp" method="post">
+    <div class="form-group">
+        <label for="cedula">Cédula del Fiador:</label>
+        <input type="text" id="cedula" name="cedula" required />
     </div>
-</body>
-</html>
+    <div class="form-group">
+        <label for="fiadorName">Nombre del Fiador:</label>
+        <input type="text" id="fiadorName" name="fiadorName" required />
+    </div>
+    <div class="form-group">
+        <label for="fiadorEmail">Correo Electrónico del Fiador:</label>
+        <input type="email" id="fiadorEmail" name="fiadorEmail" required />
+    </div>
+    <input type="submit" value="Registrar Fiador" />
+</form>
+
+<!-- Mensaje de Estado -->
+<%
+    String mensaje = "";
+    Connection con = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+
+    // URL de conexión a PostgreSQL en Render
+    String url = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+    String user = "casasegura_user";
+    String password = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+
+    // Registro de Fiador
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String cedula = request.getParameter("cedula");
+        String nombre = request.getParameter("fiadorName");
+        String email = request.getParameter("fiadorEmail");
+
+        try {
+            // Establecer conexión con la base de datos en Render
+            con = DriverManager.getConnection(url, user, password);
+            String insertSql = "INSERT INTO fiadores (cedula, nombre, email) VALUES (?, ?, ?)";
+            ps = con.prepareStatement(insertSql);
+            ps.setString(1, cedula);
+            ps.setString(2, nombre);
+            ps.setString(3, email);
+
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                mensaje = "Fiador registrado exitosamente.";
+            } else {
+                mensaje = "No se pudo registrar el fiador.";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mensaje = "Error en el sistema. Por favor, intente más tarde.";
+        } finally {
+            if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+            if (con != null) try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+%>
+<% if (!mensaje.isEmpty()) { %>
+    <div class="alert alert-info mt-3">
+        <%= mensaje %>
+    </div>
+<% } %>
+
+<!-- Sección de Listado de Fiadores -->
+<h2>Lista de Fiadores</h2>
+<%
+    try {
+        // Establecer conexión con la base de datos en Render
+        con = DriverManager.getConnection(url, user, password);
+        String selectSql = "SELECT * FROM fiadores";
+        ps = con.prepareStatement(selectSql);
+        rs = ps.executeQuery();
+%>
+<table>
+    <thead>
+        <tr>
+            <th>Cédula</th>
+            <th>Nombre</th>
+            <th>Correo Electrónico</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% while (rs.next()) { %>
+            <tr>
+                <td><%= rs.getString("cedula") %></td>
+                <td><%= rs.getString("nombre") %></td>
+                <td><%= rs.getString("email") %></td>
+            </tr>
+        <% } %>
+    </tbody>
+</table>
+<%
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+        if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+        if (con != null) try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
+    }
+%>
+
