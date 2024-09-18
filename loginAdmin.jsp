@@ -1,111 +1,162 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*, javax.servlet.*, javax.servlet.http.*" %>
+<%@ page import="java.sql.*" %>
 <%
-    String errorMessage = "";
-    String successMessage = "";
+    // Configuración de conexión a la base de datos de Render
+    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a/casasegura";
+    String dbUser = "casasegura_user";
+    String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
 
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-        String action = request.getParameter("action");
+    Connection con = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    String errorMessage = null;
 
-        if ("login".equals(action)) {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
+    try {
+        // Intentar la conexión a la base de datos
+        con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        stmt = con.createStatement();
 
-            try {
-                // Conexión a la base de datos alojada en Render
-                String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
-                String dbUser = "casasegura_user";
-                String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
-
-                Connection con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-
-                String sql = "SELECT * FROM administradores WHERE username=? AND password=?";
-                PreparedStatement ps = con.prepareStatement(sql);
-                ps.setString(1, username);
-                ps.setString(2, password);
-                ResultSet rs = ps.executeQuery();
-
-                if (rs.next()) {
-                    session.setAttribute("admin", username);
-                    response.sendRedirect("DashboardAdmin.jsp");
-                    return; // Detener la ejecución del resto del código
-                } else {
-                    errorMessage = "Credenciales incorrectas.";
-                }
-                con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                errorMessage = "Error en el sistema. Por favor, intente más tarde.";
-            }
-        }
+        // Consulta para obtener los inmuebles de la base de datos (ejemplo)
+        String query = "SELECT * FROM inmuebles"; // Suponiendo que tienes una tabla llamada 'inmuebles'
+        rs = stmt.executeQuery(query);
+    } catch (SQLException e) {
+        e.printStackTrace();
+        errorMessage = "Error al conectar con la base de datos: " + e.getMessage();
     }
 %>
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Login Admin - CasaSegura</title>
+    <title>Dashboard Admin - CasaSegura</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background: #0d0d0d;
+            background: #121212;
             color: #e0e0e0;
             font-family: 'Roboto', sans-serif;
         }
         .container {
-            max-width: 600px;
-            margin: 3rem auto;
-            background: #1e1e1e;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+            margin-top: 2rem;
         }
-        h2 {
-            margin-bottom: 1.5rem;
+        .btn-logout {
+            margin-top: 2rem;
+        }
+        .card {
+            background: #1e1e1e;
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            color: #e0e0e0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.7);
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
             color: #00bfff;
+        }
+        .card-text {
+            margin-bottom: 1rem;
         }
         .btn-primary {
             background-color: #00bfff;
-            border-color: #00bfff;
-            color: #000;
+            border: none;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
         }
         .btn-primary:hover {
             background-color: #009acd;
-            border-color: #009acd;
-            color: #fff;
         }
-        .alert {
-            margin-top: 1rem;
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        h1 {
+            color: #00bfff;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center">Login Admin</h2>
-        <form method="post">
-            <input type="hidden" name="action" value="login">
-            <div class="form-group">
-                <label for="username">Nombre de Usuario:</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
-        </form>
+        <h1 class="text-center">Dashboard Administrador</h1>
 
-        <!-- Mostrar mensajes de error o éxito utilizando scriptlets en lugar de JSTL -->
-        <% if (!errorMessage.isEmpty()) { %>
+        <!-- Mensaje de error si hay problemas con la base de datos -->
+        <% if (errorMessage != null) { %>
             <div class="alert alert-danger" role="alert">
                 <%= errorMessage %>
             </div>
-        <% } else if (!successMessage.isEmpty()) { %>
-            <div class="alert alert-success" role="alert">
-                <%= successMessage %>
-            </div>
         <% } %>
+
+        <!-- Sección de administración -->
+        <div class="row">
+            <!-- Tarjeta para gestionar inmuebles -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gestionar Inmuebles</h5>
+                        <p class="card-text">Accede al panel para gestionar los inmuebles de la plataforma.</p>
+                        <a href="createInmueble.jsp" class="btn btn-primary">Ir a Gestión de Inmuebles</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta para gestionar clientes -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gestionar Clientes</h5>
+                        <p class="card-text">Accede al panel para gestionar los clientes registrados.</p>
+                        <a href="createCliente.jsp" class="btn btn-primary">Ir a Gestión de Clientes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mostrar inmuebles obtenidos de la base de datos -->
+        <div class="row">
+            <h2>Lista de Inmuebles</h2>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% while (rs != null && rs.next()) { %>
+                        <tr>
+                            <td><%= rs.getInt("id") %></td>
+                            <td><%= rs.getString("nombre") %></td>
+                            <td><%= rs.getString("descripcion") %></td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botón de cerrar sesión -->
+        <div class="text-center">
+            <a href="logout.jsp" class="btn btn-danger">Cerrar Sesión</a>
+        </div>
     </div>
 </body>
 </html>
+
+<%
+    // Cerrar la conexión si está abierta
+    if (rs != null) rs.close();
+    if (stmt != null) stmt.close();
+    if (con != null) con.close();
+%>
