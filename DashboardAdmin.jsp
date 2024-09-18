@@ -1,4 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<%
+    // Configuración de conexión a la base de datos de Render
+    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+    String dbUser = "casasegura_user";
+    String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+
+    Connection con = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    String errorMessage = null;
+
+    try {
+        // Intentar la conexión a la base de datos
+        con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        stmt = con.createStatement();
+
+        // Consulta para obtener los inmuebles de la base de datos (ejemplo)
+        String query = "SELECT * FROM inmuebles"; // Suponiendo que tienes una tabla llamada 'inmuebles'
+        rs = stmt.executeQuery(query);
+    } catch (SQLException e) {
+        e.printStackTrace();
+        errorMessage = "Error al conectar con la base de datos: " + e.getMessage();
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -66,6 +91,13 @@
     <div class="container">
         <h1 class="text-center">Dashboard Administrador</h1>
 
+        <!-- Mensaje de error si hay problemas con la base de datos -->
+        <% if (errorMessage != null) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= errorMessage %>
+            </div>
+        <% } %>
+
         <!-- Sección de administración -->
         <div class="row">
             <!-- Tarjeta para gestionar inmuebles -->
@@ -91,6 +123,29 @@
             </div>
         </div>
 
+        <!-- Mostrar inmuebles obtenidos de la base de datos -->
+        <div class="row">
+            <h2>Lista de Inmuebles</h2>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% while (rs != null && rs.next()) { %>
+                        <tr>
+                            <td><%= rs.getInt("id") %></td>
+                            <td><%= rs.getString("nombre") %></td>
+                            <td><%= rs.getString("descripcion") %></td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
         <!-- Botón de cerrar sesión -->
         <div class="text-center">
             <a href="logout.jsp" class="btn btn-danger">Cerrar Sesión</a>
@@ -98,3 +153,10 @@
     </div>
 </body>
 </html>
+
+<%
+    // Cerrar la conexión si está abierta
+    if (rs != null) rs.close();
+    if (stmt != null) stmt.close();
+    if (con != null) con.close();
+%>
