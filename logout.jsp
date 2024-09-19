@@ -50,7 +50,7 @@
             }
         %>
         <p>Has cerrado sesión exitosamente. Redirigiendo a la página principal...</p>
-        <p>Si no eres redirigido automáticamente, <a href="/index.jsp/">haz clic aquí</a>.</p>
+        <p>Si no eres redirigido automáticamente, <a href=/index.jsp/>haz clic aquí</a>.</p>
     </div>
 </body>
 </html>
