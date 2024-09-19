@@ -2,7 +2,7 @@
 <%@ page import="java.sql.*" %>
 <%
     // Configuración de conexión a la base de datos de Render
-    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com:5432/casasegura";
     String dbUser = "casasegura_user";
     String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
 
@@ -19,7 +19,7 @@
         con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
         stmt = con.createStatement();
 
-        // Consulta para obtener los inmuebles de la base de datos (ejemplo)
+        // Consulta para obtener los inmuebles de la base de datos
         String query = "SELECT * FROM inmuebles"; // Suponiendo que tienes una tabla llamada 'inmuebles'
         rs = stmt.executeQuery(query);
     } catch (SQLException e) {
@@ -28,6 +28,17 @@
     } catch (ClassNotFoundException e) {
         e.printStackTrace();
         errorMessage = "Error: Driver de PostgreSQL no encontrado.";
+    } finally {
+        // Este bloque se ejecuta siempre, sea éxito o fallo, para cerrar recursos
+        if (rs != null) {
+            try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
+        if (stmt != null) {
+            try { stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
+        if (con != null) {
+            try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
     }
 %>
 <!DOCTYPE html>
