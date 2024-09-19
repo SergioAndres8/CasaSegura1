@@ -49,11 +49,8 @@
             String password = request.getParameter("password");
 
             // Uso de try-with-resources para garantizar el cierre de recursos
-            String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com:5432/casasegura";
-            String dbUser = "casasegura_user";
-            String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
-
-            try (Connection con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            try (Connection con = DriverManager.getConnection("jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura", 
+                                                             "casasegura_user", "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG");
                  PreparedStatement ps = con.prepareStatement("SELECT * FROM clientes WHERE cedula=? AND password=?")) {
                  
                 ps.setString(1, username);
