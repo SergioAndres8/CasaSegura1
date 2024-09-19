@@ -70,8 +70,13 @@
             String address = "";
             String birthdate = "";
 
+            // Configuración de la conexión a PostgreSQL en Render
+            String url = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com:5432/casasegura";
+            String user = "casasegura_user";
+            String passwordDB = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+
             if (cedula != null && !cedula.isEmpty()) {
-                try (Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/casasegura", "postgres", "1");
+                try (Connection con = DriverManager.getConnection(url, user, passwordDB);
                      PreparedStatement ps = con.prepareStatement("SELECT * FROM clientes WHERE cedula = ?")) {
 
                     ps.setString(1, cedula);
