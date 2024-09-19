@@ -1,35 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
-<%
-    // Configuración de conexión a la base de datos de Render
-    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com:5432/casasegura";
-    String dbUser = "casasegura_user";
-    String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
-
-    Connection con = null;
-    Statement stmt = null;
-    ResultSet rs = null;
-    String errorMessage = null;
-
-    try {
-        // Cargar el driver JDBC de PostgreSQL
-        Class.forName("org.postgresql.Driver");
-
-        // Intentar la conexión a la base de datos
-        con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-        stmt = con.createStatement();
-
-        // Consulta para obtener los inmuebles de la base de datos
-        String query = "SELECT * FROM inmuebles"; // Suponiendo que tienes una tabla llamada 'inmuebles'
-        rs = stmt.executeQuery(query);
-    } catch (SQLException e) {
-        e.printStackTrace();
-        errorMessage = "Error al conectar con la base de datos: " + e.getMessage();
-    } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-        errorMessage = "Error: Driver de PostgreSQL no encontrado.";
-    }
-%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -96,6 +66,37 @@
 <body>
     <div class="container">
         <h1 class="text-center">Dashboard Administrador</h1>
+
+        <!-- Mensaje de error si hay problemas con la base de datos -->
+        <% 
+        String errorMessage = null;
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            // Configuración de conexión a la base de datos de Render
+            String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com:5432/casasegura";
+            String dbUser = "casasegura_user";
+            String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+
+            // Cargar el driver JDBC de PostgreSQL
+            Class.forName("org.postgresql.Driver");
+
+            // Intentar la conexión a la base de datos
+            con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            stmt = con.createStatement();
+
+            // Consulta para obtener los inmuebles de la base de datos
+            String query = "SELECT * FROM inmuebles"; // Suponiendo que tienes una tabla llamada 'inmuebles'
+            rs = stmt.executeQuery(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            errorMessage = "Error al conectar con la base de datos: " + e.getMessage();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            errorMessage = "Error: Driver de PostgreSQL no encontrado.";
+        }
+        %>
 
         <!-- Mensaje de error si hay problemas con la base de datos -->
         <% if (errorMessage != null) { %>
