@@ -12,16 +12,22 @@
     String errorMessage = null;
 
     try {
+        // Cargar el driver JDBC de PostgreSQL
+        Class.forName("org.postgresql.Driver");
+
         // Intentar la conexión a la base de datos
         con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
         stmt = con.createStatement();
 
-        // Consulta para obtener los inmuebles de la base de datos (ejemplo)
+        // Consulta para obtener los inmuebles de la base de datos
         String query = "SELECT * FROM inmuebles"; // Suponiendo que tienes una tabla llamada 'inmuebles'
         rs = stmt.executeQuery(query);
     } catch (SQLException e) {
         e.printStackTrace();
         errorMessage = "Error al conectar con la base de datos: " + e.getMessage();
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+        errorMessage = "Error: Driver de PostgreSQL no encontrado.";
     }
 %>
 <!DOCTYPE html>
@@ -135,13 +141,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% while (rs != null && rs.next()) { %>
+                    <% if (rs != null) {
+                        while (rs.next()) { %>
                         <tr>
                             <td><%= rs.getInt("id") %></td>
                             <td><%= rs.getString("nombre") %></td>
                             <td><%= rs.getString("descripcion") %></td>
                         </tr>
-                    <% } %>
+                    <% } } %>
                 </tbody>
             </table>
         </div>
