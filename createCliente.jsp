@@ -68,7 +68,7 @@
             
             if ("POST".equalsIgnoreCase(request.getMethod())) {
                 String cedula = request.getParameter("cedula");
-                String nombre = request.getParameter("name");
+                String username = request.getParameter("username");
                 String email = request.getParameter("email");
                 String phone = request.getParameter("phone");
                 String address = request.getParameter("address");
@@ -88,10 +88,10 @@
                 try {
                     // Conexión a la base de datos de Render
                     Connection con = DriverManager.getConnection(url, user, passwordDB);
-                    String sql = "INSERT INTO clientes (cedula, nombre, email, phone, address, birthdate, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    String sql = "INSERT INTO clientes (cedula, username, email, phone, address, birthdate, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement ps = con.prepareStatement(sql);
                     ps.setString(1, cedula);
-                    ps.setString(2, nombre);
+                    ps.setString(2, username);
                     ps.setString(3, email);
                     ps.setString(4, phone);
                     ps.setString(5, address);
