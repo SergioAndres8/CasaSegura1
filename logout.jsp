@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Logout</title>
-    <meta http-equiv="refresh" content="2;url=/ParcialJAVA/">
+    <meta http-equiv="refresh" content="2;url=/CasaSegura1/">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -50,7 +50,7 @@
             }
         %>
         <p>Has cerrado sesión exitosamente. Redirigiendo a la página principal...</p>
-        <p>Si no eres redirigido automáticamente, <a href="/ParcialJAVA/">haz clic aquí</a>.</p>
+        <p>Si no eres redirigido automáticamente, <a href="/CasaSegura1/">haz clic aquí</a>.</p>
     </div>
 </body>
 </html>
