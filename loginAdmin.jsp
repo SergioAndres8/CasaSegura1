@@ -37,10 +37,13 @@
                     errorMessage = "Credenciales incorrectas.";
                 }
                 con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                errorMessage = "Error en el sistema. Por favor, intente más tarde.";
-            }
+            } catch (SQLException e) {
+    e.printStackTrace();
+    errorMessage = "Error en la base de datos: " + e.getMessage();
+} catch (Exception e) {
+    e.printStackTrace();
+    errorMessage = "Error general: " + e.getMessage();
+}
         }
     }
 %>
