@@ -2,7 +2,7 @@
 <%@ page import="java.sql.*" %>
 <%
     // Configuración de conexión a la base de datos de Render
-    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com/casasegura";
+    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a/casasegura";
     String dbUser = "casasegura_user";
     String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
 
