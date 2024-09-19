@@ -28,17 +28,6 @@
     } catch (ClassNotFoundException e) {
         e.printStackTrace();
         errorMessage = "Error: Driver de PostgreSQL no encontrado.";
-    } finally {
-        // Este bloque se ejecuta siempre, sea éxito o fallo, para cerrar recursos
-        if (rs != null) {
-            try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
-        if (stmt != null) {
-            try { stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
-        if (con != null) {
-            try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
     }
 %>
 <!DOCTYPE html>
