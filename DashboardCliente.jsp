@@ -1,4 +1,34 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<%
+    // Configuración de conexión a la base de datos de Render
+    String dbUrl = "jdbc:postgresql://dpg-crksje5umphs73br76qg-a.oregon-postgres.render.com:5432/casasegura";
+    String dbUser = "casasegura_user";
+    String dbPassword = "fSvSdj7MOZybz6AJVaf1DdrfQlxNt6CG";
+
+    Connection con = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    String errorMessage = null;
+
+    try {
+        // Cargar el driver JDBC de PostgreSQL
+        Class.forName("org.postgresql.Driver");
+
+        // Intentar la conexión a la base de datos
+        con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        stmt = con.createStatement();
+
+        // Ejemplo de consulta: puedes reemplazarla con lo que necesites
+        // Aquí no hacemos ninguna consulta ya que es solo una página de cliente
+    } catch (SQLException e) {
+        e.printStackTrace();
+        errorMessage = "Error al conectar con la base de datos: " + e.getMessage();
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+        errorMessage = "Error: Driver de PostgreSQL no encontrado.";
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -66,6 +96,13 @@
     <div class="container">
         <h1 class="text-center">Dashboard Cliente</h1>
 
+        <!-- Mensaje de error si hay problemas con la base de datos -->
+        <% if (errorMessage != null) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= errorMessage %>
+            </div>
+        <% } %>
+
         <!-- Sección de cliente -->
         <div class="row">
             <!-- Tarjeta para solicitar inmuebles -->
@@ -109,3 +146,10 @@
     </div>
 </body>
 </html>
+
+<%
+    // Cerrar la conexión si está abierta
+    if (rs != null) rs.close();
+    if (stmt != null) stmt.close();
+    if (con != null) con.close();
+%>
